@@ -4,19 +4,18 @@ PORT=
 
 JWT_KEY=
 
-----------------
+------------------
 
 ** api_service **
 
-method                path                  params          body
+method        path              params         body
 
-POST                /auth/register          none            {username, password, confirmPassword, email}
-POST                /auth/login             none            {username, password}
+POST         /auth/register     none           {user,password,comfrimPassword,email}
+POST         /auth/login        none           {user,password}
+<!-- PUT          /todo               :id           {title,duedate} -->
 
+----------------
 
---------------------
+notes
 
-
-Notes
-
-MVC (Models, route+Controller, View)
+MVC (Models, route+Controller,View)

@@ -10,25 +10,81 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
-  id       Int     @id @default(autoincrement())
-  username String  @db.VarChar(30)
-  password String  @db.VarChar(72)
-  email    String?
-  todos    Todo[]
+  user_id   Int       @id @default(autoincrement())
+  username  String    @unique @db.VarChar(30)
+  password  String    @db.VarChar(72)
+  firstname String    @db.VarChar(50)
+  lastname  String    @db.VarChar(50)
+  address   String    @db.VarChar(150)
+  phone     String    @db.VarChar(10)
+  email     String    @db.VarChar(50)
+  role      Role      @default(USER)
+  Receipt   Receipt[]
+  Booking   Booking[]
+
+  @@map("users")
 }
 
-model Todo {
-  id      Int      @id @default(autoincrement())
-  title   String   @db.VarChar(150)
-  status  Status   @default(pending)
-  duedate DateTime @db.Date
-  user    User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  user_id Int
+model Booking {
+  booking_id       Int       @id @default(autoincrement())
+  booking_name     String?
+  booking_datatime DateTime
+  booking_phone    String    @db.VarChar(10)
+  table            Table     @relation(fields: [tableId], references: [table_id], onDelete: Cascade, onUpdate: Cascade)
+  tableId          Int       @map("table_id")
+  user             User      @relation(fields: [userId], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
+  userId           Int       @map("user_id")
+  Payment          Payment[]
 }
 
-enum Status {
-  pending
-  doing
-  done
+enum PaymentStatus {
+  UNPAID
+  PAID
+}
+
+enum TableStatus {
+  FREE
+  BUSY
+}
+
+model Payment {
+  payment_id     Int           @id @default(autoincrement())
+  payment_methon String
+  payment_amount String
+  payment_status PaymentStatus @default(UNPAID)
+  booking        Booking       @relation(fields: [bookingId], references: [booking_id], onDelete: Cascade, onUpdate: Cascade)
+  bookingId      Int           @map("booking_id")
+  Receipt        Receipt[]
+}
+
+model Receipt {
+  receip_id       Int      @id @default(autoincrement())
+  receip_datatime DateTime
+  total_amount    Int
+  payment         Payment  @relation(fields: [paymentId], references: [payment_id], onDelete: Cascade, onUpdate: Cascade)
+  paymentId       Int      @map("payment_id")
+  user            User     @relation(fields: [userId], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
+  userId          Int      @map("user_id")
+}
+
+model Table {
+  table_id     Int         @id @default(autoincrement())
+  table_name   String      @db.VarChar(50)
+  table_status TableStatus @default(FREE)
+  table_price  Int
+  type_table   Type_Table  @relation(fields: [typeId], references: [type_id], onDelete: Cascade, onUpdate: Cascade)
+  typeId       Int         @map("type_id")
+  Booking      Booking[]
+}
+
+model Type_Table {
+  type_id   Int     @id @default(autoincrement())
+  type_name String  @db.VarChar(50)
+  Table     Table[]
 }
