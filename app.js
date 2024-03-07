@@ -4,7 +4,9 @@ const cors = require("cors");
 const notFound = require("./middlewares/notFound");
 const errorMiddleware = require("./middlewares/error");
 const authRoute = require("./routes/auth-route");
+const adminRoute = require("./routes//admin-router");
 const authenticate = require("./middlewares/authenticate");
+
 const app = express();
 
 app.use(cors());
@@ -12,6 +14,7 @@ app.use(express.json());
 
 //service
 app.use("/auth", authRoute);
+app.use("/admin", adminRoute);
 // app.use("/todos", todoRoute);
 
 // notFond

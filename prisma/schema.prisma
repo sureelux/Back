@@ -25,66 +25,54 @@ model User {
   phone     String    @db.VarChar(10)
   email     String    @db.VarChar(50)
   role      Role      @default(USER)
-  Receipt   Receipt[]
   Booking   Booking[]
 
   @@map("users")
 }
 
+enum BookingStatus {
+  WAIT
+  APPROVE 
+  NOT_APPROVED
+}
+
 model Booking {
   booking_id       Int       @id @default(autoincrement())
-  booking_name     String?
   booking_datatime DateTime
-  booking_phone    String    @db.VarChar(10)
+  status_booking  BookingStatus @default(WAIT)
   table            Table     @relation(fields: [tableId], references: [table_id], onDelete: Cascade, onUpdate: Cascade)
   tableId          Int       @map("table_id")
   user             User      @relation(fields: [userId], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
   userId           Int       @map("user_id")
-  Payment          Payment[]
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamp(0)
+
+  @@map("bookings")
 }
 
-enum PaymentStatus {
-  UNPAID
-  PAID
-}
 
 enum TableStatus {
   FREE
   BUSY
 }
 
-model Payment {
-  payment_id     Int           @id @default(autoincrement())
-  payment_methon String
-  payment_amount String
-  payment_status PaymentStatus @default(UNPAID)
-  booking        Booking       @relation(fields: [bookingId], references: [booking_id], onDelete: Cascade, onUpdate: Cascade)
-  bookingId      Int           @map("booking_id")
-  Receipt        Receipt[]
-}
-
-model Receipt {
-  receip_id       Int      @id @default(autoincrement())
-  receip_datatime DateTime
-  total_amount    Int
-  payment         Payment  @relation(fields: [paymentId], references: [payment_id], onDelete: Cascade, onUpdate: Cascade)
-  paymentId       Int      @map("payment_id")
-  user            User     @relation(fields: [userId], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
-  userId          Int      @map("user_id")
-}
-
 model Table {
   table_id     Int         @id @default(autoincrement())
+  table_img    String
   table_name   String      @db.VarChar(50)
   table_status TableStatus @default(FREE)
   table_price  Int
   type_table   Type_Table  @relation(fields: [typeId], references: [type_id], onDelete: Cascade, onUpdate: Cascade)
   typeId       Int         @map("type_id")
   Booking      Booking[]
+
+  @@map("tables")
 }
 
 model Type_Table {
   type_id   Int     @id @default(autoincrement())
   type_name String  @db.VarChar(50)
   Table     Table[]
+
+  @@map("types")
 }

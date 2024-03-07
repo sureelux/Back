@@ -3,8 +3,11 @@ const router = express.Router()
 const authenticate = require('../middlewares/authenticate')
 const authController = require('../controller/auth-controller')
 
+
 router.post('/register' , authController.register)
 router.post('/login' , authController.login)
 router.get('/me' , authenticate , authController.getme)  
+
+
 
 module.exports = router 
