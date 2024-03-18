@@ -54,6 +54,38 @@ exports.getBookings = async (req, res, next) => {
   }
 };
 
+exports.getBookingUser = async (req, res, next) => {
+  try {
+    const BookingUser = await db.booking.findMany({
+      include: {
+        table: {
+          include: {
+            type_table: true,
+          },
+        },
+        user: true,
+      },
+    });
+    res.json({ BookingUser });
+    next();
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getTypesUser = async (req, res, next) => {
+  try {
+    const types = await db.type_Table.findMany({});
+    console.log(types);
+    res.json({ types });
+    // next();
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+
 // exports.getPayments = async (req, res, next) => {
 //     try {
 //         const payments = await db.payment.findMany();
@@ -301,25 +333,6 @@ exports.deleteBooking = async (req, res, next) => {
   }
 };
 
-exports.deletePayment = async (req, res, next) => {
-  const { payment_id } = req.params;
-  try {
-    const rs = await db.payment.delete({ where: { payment_id: +payment_id } });
-    res.json({ msg: "Delete Ok", result: rs });
-  } catch (err) {
-    next(err);
-  }
-};
-
-exports.deleteReceipt = async (req, res, next) => {
-  const { receip_id } = req.params;
-  try {
-    const rs = await db.receipt.delete({ where: { receip_id: +receip_id } });
-    res.json({ msg: "Delete Ok", result: rs });
-  } catch (err) {
-    next(err);
-  }
-};
 
 exports.updateType = async (req, res, next) => {
   const { type_id } = req.params;
@@ -341,8 +354,7 @@ exports.updateType = async (req, res, next) => {
 
 exports.updateTable = async (req, res, next) => {
   const { table_id } = req.params;
-  const { table_img, table_name, table_status, table_price, type_id } =
-    req.body;
+  const { table_img, table_name, table_status, table_price, type_id } = req.body;
 
   try {
     const rs = await db.table.update({

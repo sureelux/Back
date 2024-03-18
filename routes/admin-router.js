@@ -9,6 +9,8 @@ router.get('/types' , adminController.getTypes)
 router.get('/bookings' , adminController.getBookings)
 router.get('/tables/', adminController.getTableByID) 
 router.get('/tables/:id', adminController.getTBYID) 
+router.get('/bookingUser',authenticate, adminController.getBookingUser)
+router.get('/typeUser', authenticate,adminController.getTypesUser)
 
 //delect
 router.delete('/deleteUser/:user_id' , adminController.deleteUser)

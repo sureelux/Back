@@ -64,3 +64,18 @@ exports.getme = (req, res, next) => {
 };
 
 
+exports.updateUser = async (req, res, next) => {
+  // validate req.params + req.body
+  const {user_id} = req.params
+  const data = req.body
+  try {
+    const rs = await db.user.update({
+      data :  {...data},
+      where: { user_id : +user_id } 
+    })
+    res.json({msg: 'Update ok', result: rs})
+  }catch(err){
+    next(err)
+  }
+}
+
