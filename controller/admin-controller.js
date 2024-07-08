@@ -410,3 +410,24 @@ exports.updateStatusBooking = async (req, res, next) => {
     console.log(err);
   }
 };
+
+exports.TypeTableUser = async (req, res, next) => {
+  try {
+    const { type } = req.query; // Get type from query parameters
+    const dTpye = await db.table.findMany({
+      where: {
+        type_table: {
+          type_name: type
+        }
+      },
+      include: {
+        type_table: true
+      }
+    });
+    res.json({ dTpye, type });
+  } catch (err) {
+    next(err);
+  }
+};
+
+

@@ -10,7 +10,7 @@ router.get('/bookings' , adminController.getBookings)
 router.get('/tables/', adminController.getTableByID) 
 router.get('/tables/:id', adminController.getTBYID) 
 router.get('/bookingUser',authenticate, adminController.getBookingUser)
-router.get('/typeUser', authenticate,adminController.getTypesUser)
+router.get('/typeUser' , adminController.getTypesUser)
 
 //delect
 router.delete('/deleteUser/:user_id' , adminController.deleteUser)
@@ -26,9 +26,11 @@ router.post('/bookings' , adminController.createBookings)
 
 //updete
 
-router.patch('/updeteType/:type_id' , adminController.updateType)
-router.patch('/updeteTable/:table_id' , adminController.updateTable)
-router.patch('/updeteStatus/:table_id' , adminController.updateStatusTable)
-router.patch('/updeteStatusBooking/:booking_id', adminController.updateStatusBooking)
+router.patch('/updateType/:type_id' , adminController.updateType)
+router.patch('/updateTable/:table_id' , adminController.updateTable)
+router.patch('/updateStatus/:table_id' , adminController.updateStatusTable)
+router.patch('/updateStatusBooking/:booking_id', adminController.updateStatusBooking)
+
+router.get('/TypeTableUser', adminController.TypeTableUser)
 
 module.exports = router 

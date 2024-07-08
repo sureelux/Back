@@ -63,7 +63,6 @@ exports.getme = (req, res, next) => {
   res.json(req.user);
 };
 
-
 exports.updateUser = async (req, res, next) => {
   // validate req.params + req.body
   const {user_id} = req.params
@@ -78,4 +77,9 @@ exports.updateUser = async (req, res, next) => {
     next(err)
   }
 }
+
+
+
+
+
 
