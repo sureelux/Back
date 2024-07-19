@@ -16,12 +16,12 @@ router.get('/typeUser' , adminController.getTypesUser)
 router.delete('/deleteUser/:user_id' , adminController.deleteUser)
 router.delete('/deleteTable/:table_id' , adminController.deleteTable)
 router.delete('/deleteType/:type_id' , adminController.deleteType)
-router.delete('/deleteBooking/:booking_id' , adminController.deleteBooking)
+// router.delete('/deleteBooking/:booking_id' , adminController.deleteBooking)
 
 //create
 router.post('/tables', adminController.createTables)
 router.post('/types' , adminController.createType)
-router.post('/bookings' , adminController.createBookings)
+// router.post('/bookings' , adminController.createBookings)
 
 
 //updete

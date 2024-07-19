@@ -73,6 +73,8 @@ exports.getBookingUser = async (req, res, next) => {
   }
 };
 
+// exports.gettypetable = async
+
 exports.getTypesUser = async (req, res, next) => {
   try {
     const types = await db.type_Table.findMany({});
@@ -172,6 +174,9 @@ exports.getTBYID = async (req, res, next) => {
       where: {
         table_id: Number(id),
       },
+      include: {
+        type_table: true
+      }
     });
     res.json({ tables });
   } catch (err) {
@@ -217,32 +222,32 @@ exports.createType = async (req, res, next) => {
   }
 };
 
-exports.createBookings = async (req, res, next) => {
-  const { booking_datatime, table_id, user_id } = req.body;
-  // const user_id = req.user.user_id
-  try {
-    const dateTime = new Date(booking_datatime);
-    const booking = await db.booking.create({
-      data: {
-        booking_datatime: dateTime,
-        table: {
-          connect: {
-            table_id: +table_id,
-          },
-        },
-        user: {
-          connect: {
-            user_id,
-          },
-        },
-      },
-    });
-    res.json({ booking });
-  } catch (err) {
-    next(err);
-    console.log(err);
-  }
-};
+// exports.createBookings = async (req, res, next) => {
+//   const { booking_datatime, table_id, user_id } = req.body;
+//   // const user_id = req.user.user_id
+//   try {
+//     const dateTime = new Date(booking_datatime);
+//     const booking = await db.booking.create({
+//       data: {
+//         booking_datatime: dateTime,
+//         table: {
+//           connect: {
+//             table_id: +table_id,
+//           },
+//         },
+//         user: {
+//           connect: {
+//             user_id,
+//           },
+//         },
+//       },
+//     });
+//     res.json({ booking });
+//   } catch (err) {
+//     next(err);
+//     console.log(err);
+//   }
+// };
 
 // exports.createPayment = async (req, res, next) => {
 //   try {
@@ -323,15 +328,15 @@ exports.deleteType = async (req, res, next) => {
   }
 };
 
-exports.deleteBooking = async (req, res, next) => {
-  const { booking_id } = req.params;
-  try {
-    const rs = await db.booking.delete({ where: { booking_id: +booking_id } });
-    res.json({ msg: "Delete Ok", result: rs });
-  } catch (err) {
-    next(err);
-  }
-};
+// exports.deleteBooking = async (req, res, next) => {
+//   const { booking_id } = req.params;
+//   try {
+//     const rs = await db.booking.delete({ where: { booking_id: +booking_id } });
+//     res.json({ msg: "Delete Ok", result: rs });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 
 exports.updateType = async (req, res, next) => {
