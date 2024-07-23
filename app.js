@@ -5,22 +5,23 @@ const notFound = require("./middlewares/notFound");
 const errorMiddleware = require("./middlewares/error");
 const authRoute = require("./routes/auth-route");
 const adminRoute = require("./routes//admin-router");
+const userRoute = require("./routes//user-router");
+const authenticate = require("./middlewares/authenticate");
+const web = express();
 
-const app = express();
-
-app.use(cors());
-app.use(express.json());
+web.use(cors());
+web.use(express.json());
 
 //service
-app.use("/auth" ,authRoute,);
-app.use("/admin",adminRoute);
-// app.use("/todos", todoRoute);
+web.use("/auth",authRoute);
+web.use("/admin",authenticate ,adminRoute);
+web.use("/user",authenticate ,userRoute);
 
 // notFond
-app.use(notFound);
+web.use(notFound);
 
 // error
-app.use(errorMiddleware);
+web.use(errorMiddleware);
 
 let port = process.env.PORT || 8000;
-app.listen(port, () => console.log("Server on Port : ", port));
+web.listen(port, () => console.log("Server on Port : ", port));

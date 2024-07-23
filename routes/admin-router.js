@@ -6,11 +6,7 @@ const authenticate = require('../middlewares/authenticate')
 //show Data
 router.get('/users' , adminController.getUsers)
 router.get('/types' , adminController.getTypes)
-router.get('/bookings' , adminController.getBookings)
-router.get('/tables/', adminController.getTableByID) 
-router.get('/tables/:id', adminController.getTBYID) 
-router.get('/bookingUser',authenticate, adminController.getBookingUser)
-router.get('/typeUser' , adminController.getTypesUser)
+router.get('/bookings' , adminController.getBookings)  
 
 //delect
 router.delete('/deleteUser/:user_id' , adminController.deleteUser)
@@ -21,8 +17,6 @@ router.delete('/deleteType/:type_id' , adminController.deleteType)
 //create
 router.post('/tables', adminController.createTables)
 router.post('/types' , adminController.createType)
-// router.post('/bookings' , adminController.createBookings)
-
 
 //updete
 
@@ -31,6 +25,5 @@ router.patch('/updateTable/:table_id' , adminController.updateTable)
 router.patch('/updateStatus/:table_id' , adminController.updateStatusTable)
 router.patch('/updateStatusBooking/:booking_id', adminController.updateStatusBooking)
 
-router.get('/TypeTableUser', adminController.TypeTableUser)
 
 module.exports = router 

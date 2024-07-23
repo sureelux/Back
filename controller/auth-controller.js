@@ -33,7 +33,6 @@ module.exports.register = async (req, res, next) => {
 };
 module.exports.login = async (req, res, next) => {
   const { username, password } = req.body;
-  // console.log(username, password)
   try {
     if (!(username.trim() && password.trim())) {
       throw new Error("username or password must not blank");
@@ -42,13 +41,10 @@ module.exports.login = async (req, res, next) => {
     const user = await db.user.findFirstOrThrow({ where: { username } });
     
     const pwOk = await bcrypt.compare(password, user.password)
-    // console.log(user.password)
     if (!pwOk) {
       throw new Error("invalid login");
     }
-
     const payload = { id: user.user_id };
-    // console.log(user.user_id);
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: "30d",
     });
