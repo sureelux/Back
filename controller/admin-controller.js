@@ -257,25 +257,37 @@ exports.updateType = async (req, res, next) => {
   }
 };
 
+
 exports.updateTable = async (req, res, next) => {
   const { table_id } = req.params;
-  const { table_img, table_name, table_status, table_price, type_id } = req.body;
+  const { table_img, table_name, table_status, table_price, type_name } = req.body;
 
   try {
+    const typeRecord = await db.type_Table.findFirst({
+      where: { type_name: type_name }
+    });
+
+    if (!typeRecord) {
+      return res.status(400).json({ message: "Type not found" });
+    }
+
+    const type_id = typeRecord.type_id;
+
     const rs = await db.table.update({
       data: {
         table_img,
         table_name,
         table_status,
         table_price,
-        type_id,
+        typeId: type_id, 
       },
       where: { table_id: Number(table_id) },
     });
-    res.json({ message: "UPDETE", result: rs });
+
+    res.json({ message: "UPDATE", result: rs });
   } catch (err) {
-    next(err);
-    console.log(err);
+    console.error("Error updating table:", err);
+    res.status(500).json({ message: "Internal server error", error: err.message });
   }
 };
 
