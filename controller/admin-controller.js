@@ -106,47 +106,136 @@ exports.deleteType = async (req, res, next) => {
 
 exports.createTables = async (req, res, next) => {
   try {
-    const { table_img, table_name, table_status, table_price, type_name } =
-      req.body;
-    console.log(req.body);
+    const { table_img, table_name, table_status, table_price, type_name } = req.body;
+    if (
+      !table_name || typeof table_name !== 'string' ||
+      !table_status || typeof table_status !== 'string' ||
+      isNaN(Number(table_price)) || isNaN(Number(type_name))
+    ) {
+      return res.status(400).json({ msg: "Invalid input data" });
+    }
 
-    const Tables = await db.table.create({
+    const sanitizedTableName = table_name.trim();
+    const sanitizedTableStatus = table_status.trim();
+    const sanitizedTablePrice = Number(table_price);
+    const sanitizedTypeName = Number(type_name);
+
+    const existingTable = await db.table.findFirst({
+      where: { table_name: sanitizedTableName },
+    });
+
+    if (existingTable) {
+      return res.status(400).json({ msg: "Table name already exists" });
+    }
+
+    const newTable = await db.table.create({
       data: {
         table_img,
-        table_name,
-        table_status,
-        table_price: Number(table_price),
-        typeId: Number(type_name),
+        table_name: sanitizedTableName,
+        table_status: sanitizedTableStatus,
+        table_price: sanitizedTablePrice,
+        typeId: sanitizedTypeName,
       },
     });
 
-    res.json({ msg: "Table created successfully", Tables });
+    res.status(201).json({ msg: "Table created successfully", table: newTable });
   } catch (error) {
-    console.log(error);
+    console.error("Error creating table:", error.message);
+    res.status(500).json({ msg: "Internal Server Error", error: error.message });
     next(error);
   }
 };
 
-exports.createType = async (req, res, next) => {
+exports.checkTableNameUnique = async (req, res) => {
   try {
-    const { type } = req.body;
-    const existingType = await db.type_Table.findUnique({ where: { type_name: type } });
+    const { name } = req.query;
 
-    if (existingType) {
-      return res.status(400).json({ message: 'Type already exists' });
+
+    if (!name || typeof name !== 'string') {
+      console.log("Invalid input data:", { name });
+      return res.status(400).json({ msg: "Invalid input data" });
     }
 
-    const cType = await db.type_Table.create({
-      data: {
-        type_name: type,
-      },
+    const sanitizedName = name.trim();
+    console.log("Sanitized table name:", sanitizedName); 
+
+    const existingTable = await db.table.findFirst({
+      where: { table_name: sanitizedName },
     });
 
-    res.status(201).json({ cType });
-  } catch (err) {
-    next(err);
+    console.log("Existing table record:", existingTable); 
+
+    res.status(200).json({ isUnique: !existingTable });
+  } catch (error) {
+    console.error("Error checking table name uniqueness:", error); 
+    res.status(500).json({ msg: "Internal Server Error", error: error.message });
   }
 };
+
+
+exports.createType = async (req, res, next) => {
+  try {
+    const { type_name } = req.body;
+
+    if (!type_name || typeof type_name !== 'string') {
+      return res.status(400).json({ msg: "Type name is required and must be a string" });
+    }
+
+    const existingType = await db.type_Table.findFirst({
+      where: {
+        type_name: type_name
+      }
+    });
+    
+    if (existingType) {
+      return res.status(400).json({ msg: "Type name already exists" });
+    }
+
+    const newType = await db.type_Table.create({
+      data: { type_name },
+    });
+
+    res.status(201).json({ msg: "Type created successfully", type: newType });
+  } catch (error) {
+    console.error("Error creating type:", error);
+
+    if (error.name === "ValidationError") {
+      res.status(400).json({ msg: error.message });
+    } else {
+      res.status(500).json({ msg: "Internal Server Error", error: error.message });
+    }
+
+    next(error);
+  }
+};
+
+
+exports.checkTypeExists = async (req, res, next) => {
+  try {
+    const { type_name } = req.params;
+
+    if (!type_name || typeof type_name !== 'string') {
+      return res.status(400).json({ msg: "Type name is required and must be a string" });
+    }
+
+    const existingType = await db.type_Table.findFirst({
+      where: { type_name }
+    });
+
+    res.status(200).json({ exists: !!existingType });
+  } catch (error) {
+    console.error("Error checking type existence:", error);
+
+    if (error.name === "ValidationError") {
+      res.status(400).json({ msg: error.message });
+    } else {
+      res.status(500).json({ msg: "Internal Server Error", error: error.message });
+    }
+
+    next(error);
+  }
+};
+
 
 
 
@@ -218,130 +307,4 @@ exports.updateStatusTable = async (req, res, next) => {
 //     next(err);
 //   }
 // };
-
-
-
-
-
-
-
-//user
-
-
-// exports.getPayments = async (req, res, next) => {
-//     try {
-//         const payments = await db.payment.findMany();
-//         res.json({ payments });
-//         next();
-//     } catch (err) {
-//         next(err);
-//     }
-// }
-
-// exports.getReceipts = async (req, res, next) => {
-//     try {
-//         const receipts = await db.receipt.findMany({
-//           include:  {
-//             payment: {
-//               include: {
-//                 booking: {
-//                   include: {
-//                     table: true
-//                   }
-//                 }
-//               }
-//             },
-//             user: true
-//           }
-//         });
-//         res.json({ receipts });
-//         next();
-//     } catch (err) {
-//         next(err);
-//     }
-// }
-
-// exports.getReceiptsByID = async (req, res, next) => {
-//     try {
-//       const { id } = req.params;
-//         const receipts = await db.receipt.findFirst({
-//           where: {
-//             receip_id: +id
-//           },
-//           include:  {
-//             payment: {
-//               include: {
-//                 booking: {
-//                   include: {
-//                     table: true
-//                   }
-//                 }
-//               }
-//             },
-//             user: true
-//           }
-//         });
-//         res.json({ receipts });
-//         next();
-//     } catch (err) {
-//         next(err);
-//     }
-// }
-
-
-
-
-// create
-
-
-
-// exports.createPayment = async (req, res, next) => {
-//   try {
-//     const { payment_method, payment_img, booking_id } = req.body;
-//     const payment = await db.payment.create({
-//       data: {
-//         payment_method,
-//         payment_img,
-//         booking: {
-//           connect: {
-//             booking_id: +booking_id,
-//           }
-//         }
-//       }
-//     })
-//     res.json({ payment })
-//   }catch(err){
-//     console.log(err)
-//     next(err)
-//   }
-// }
-
-// exports.createReceipts= async (req, res, next) => {
-//   const { receip_datatime, payment_id, user_id } = req.body;
-//   // const user_id = req.user.user_id
-//   console.log(receip_datatime)
-//   try {
-//       const receipt = await db.receipt.create({
-//           data: {
-//               receip_datatime,
-//               payment: {
-//                   connect: {
-//                       payment_id,
-//                   }
-//               },
-//               user: {
-//                   connect: {
-//                       user_id,
-//                   }
-//               },
-//           }
-//       })
-//       res.json({ receipt })
-//   }catch(err){
-//       next(err)
-//       console.log(err)
-//   }
-// }
-
-// delete
 
