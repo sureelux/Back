@@ -67,7 +67,7 @@ exports.getBookingUser = async (req, res, next) => {
   
   exports.TypeTableUser = async (req, res, next) => {
     try {
-      const { type } = req.query; // Get type from query parameters
+      const { type } = req.query; 
       const dTpye = await db.table.findMany({
         where: {
           type_table: {
@@ -97,12 +97,7 @@ exports.getBookingUser = async (req, res, next) => {
   
   exports.getTableByID = async (req, res, next) => {
     try {
-      // const { id } = req.params;
-      // const tables = await db.table.findFirst({
-      //   where: {
-      //     table_id: Number(id)
-      //   },
-      // });
+
       const tables = await db.table.findMany({
         include: {
           type_table: true,
@@ -113,3 +108,4 @@ exports.getBookingUser = async (req, res, next) => {
       next(err);
     }
   };
+

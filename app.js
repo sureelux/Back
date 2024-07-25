@@ -8,14 +8,49 @@ const adminRoute = require("./routes//admin-router");
 const userRoute = require("./routes//user-router");
 const authenticate = require("./middlewares/authenticate");
 const web = express();
+const db = require("./models/db");
 
 web.use(cors());
 web.use(express.json());
 
 //service
 web.use("/auth",authRoute);
+web.use("/get", async (req, res, next) => {
+    try {
+
+      const tables = await db.table.findMany({
+        include: {
+          type_table: true,
+        },
+      });
+      res.json({ tables });
+    } catch (err) {
+      next(err);
+    }
+  });
+
+web.use("/getType*", async (req, res, next) => {
+  try {
+    const { type } = req.query; 
+    const dTpye = await db.table.findMany({
+      where: {
+        type_table: {
+          type_name: type
+        }
+      },
+      include: {
+        type_table: true
+      }
+    });
+    res.json({ dTpye, type });
+  } catch (err) {
+    next(err);
+  }
+});
+
+
 web.use("/admin",authenticate ,adminRoute);
-web.use("/user",authenticate ,userRoute);
+web.use("/user" ,userRoute);
 
 // notFond
 web.use(notFound);
