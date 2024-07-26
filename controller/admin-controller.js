@@ -263,6 +263,7 @@ exports.updateTable = async (req, res, next) => {
   const { table_img, table_name, table_status, table_price, type_name } = req.body;
 
   try {
+    // ตรวจสอบว่ามีประเภทโต๊ะที่ระบุหรือไม่
     const typeRecord = await db.type_Table.findFirst({
       where: { type_name: type_name }
     });
@@ -273,13 +274,17 @@ exports.updateTable = async (req, res, next) => {
 
     const type_id = typeRecord.type_id;
 
+    const validStatuses = ["FREE", "BUSY"];
+    if (!validStatuses.includes(table_status)) {
+      return res.status(400).json({ message: "Invalid table status" });
+    }
+
     const rs = await db.table.update({
       data: {
         table_img,
         table_name,
         table_status,
-        table_price,
-        typeId: type_id, 
+        table_price: parseInt(table_price, 10), 
       },
       where: { table_id: Number(table_id) },
     });
@@ -290,6 +295,8 @@ exports.updateTable = async (req, res, next) => {
     res.status(500).json({ message: "Internal server error", error: err.message });
   }
 };
+
+
 
 exports.updateStatusTable = async (req, res, next) => {
   console.log(req.body)
