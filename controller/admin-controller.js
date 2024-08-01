@@ -1,7 +1,6 @@
 const db = require("../models/db");
 
 
-//admin 
 exports.getUsers = async (req, res, next) => {
   try {
     const users = await db.user.findMany();

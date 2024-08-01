@@ -31,6 +31,8 @@ module.exports.register = async (req, res, next) => {
     next(err);
   }
 };
+
+
 module.exports.login = async (req, res, next) => {
   const { username, password } = req.body;
   try {
@@ -55,24 +57,12 @@ module.exports.login = async (req, res, next) => {
   }
 };
 
+
 exports.getme = (req, res, next) => {
   res.json(req.user);
 };
 
-exports.updateUser = async (req, res, next) => {
-  // validate req.params + req.body
-  const {user_id} = req.params
-  const data = req.body
-  try {
-    const rs = await db.user.update({
-      data :  {...data},
-      where: { user_id : +user_id } 
-    })
-    res.json({msg: 'Update ok', result: rs})
-  }catch(err){
-    next(err)
-  }
-}
+
 
 
 

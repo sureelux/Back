@@ -6,7 +6,7 @@ const db = require('../models/db')
 module.exports = async (req, res ,next) => {
     try {
     const authorization = req.headers.authorization
-    // console.log(authorization)
+
     if ( !authorization) {
         throw new Error('Unauthorized')
     }
@@ -15,11 +15,9 @@ module.exports = async (req, res ,next) => {
     }
     const token = authorization.split(' ')[1]
     const payload = jwt.verify(token, process.env.JWT_SECRET)
-    // console.log(payload)
 
     const user = await db.user.findFirst({where : {user_id: payload.id}})
     delete user.password
-    // console.log(user)
     req.user = user 
 
     next()

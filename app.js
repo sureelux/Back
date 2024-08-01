@@ -13,7 +13,6 @@ const db = require("./models/db");
 web.use(cors());
 web.use(express.json());
 
-//service
 web.use("/auth",authRoute);
 web.use("/get", async (req, res, next) => {
     try {
@@ -48,14 +47,10 @@ web.use("/getType*", async (req, res, next) => {
   }
 });
 
-
 web.use("/admin",authenticate ,adminRoute);
 web.use("/user" ,userRoute);
 
-// notFond
 web.use(notFound);
-
-// error
 web.use(errorMiddleware);
 
 let port = process.env.PORT || 8000;

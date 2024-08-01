@@ -9,6 +9,7 @@ router.get('/tables/:id', authenticate, userController.getTBYID)
 router.get('/TypeTableUser', authenticate, userController.TypeTableUser)
 router.get('/typeuser' , userController.getTypesUser)
 router.get('/tables/', authenticate,userController.getTableByID)
+router.put('/:user_id', authenticate, userController.updateUser)
 
 
 module.exports = router 

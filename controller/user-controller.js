@@ -21,7 +21,6 @@ exports.getBookingUser = async (req, res, next) => {
   
   exports.createBookings = async (req, res, next) => {
     const { booking_datatime, table_id, user_id } = req.body;
-    // const user_id = req.user.user_id
     try {
       const dateTime = new Date(booking_datatime);
       const booking = await db.booking.create({
@@ -109,3 +108,16 @@ exports.getBookingUser = async (req, res, next) => {
     }
   };
 
+  exports.updateUser = async (req, res, next) => {
+    const {user_id} = req.params
+    const data = req.body
+    try {
+      const rs = await db.user.update({
+        data :  {...data},
+        where: { user_id : +user_id } 
+      })
+      res.json({msg: 'Update ok', result: rs})
+    }catch(err){
+      next(err)
+    }
+  }
