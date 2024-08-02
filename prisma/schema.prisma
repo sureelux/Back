@@ -33,7 +33,7 @@ model User {
 enum BookingStatus {
   WAIT
   APPROVE 
-  NOT_APPROVED
+  CANCEL
 }
 
 model Booking {

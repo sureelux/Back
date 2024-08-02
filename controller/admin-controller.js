@@ -235,9 +235,6 @@ exports.checkTypeExists = async (req, res, next) => {
   }
 };
 
-
-
-
 exports.updateType = async (req, res, next) => {
   const { type_id } = req.params;
   const { type_name } = req.body;
@@ -256,46 +253,60 @@ exports.updateType = async (req, res, next) => {
   }
 };
 
-
-exports.updateTable = async (req, res, next) => {
+exports.updateTable = async (req, res) => {
   const { table_id } = req.params;
-  const { table_img, table_name, table_status, table_price, type_name } = req.body;
+  const { table_img, table_name, table_status, table_price, type_id } = req.body;
+
+  if (!table_img || !table_name || !table_status || table_price === undefined || !type_id) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  const price = parseFloat(table_price);
+  if (isNaN(price) || price < 0) { 
+    return res.status(400).json({ message: "Invalid table price" });
+  }
+
+  const validStatuses = ["FREE", "BUSY"];
+  if (!validStatuses.includes(table_status)) {
+    return res.status(400).json({ message: "Invalid table status" });
+  }
 
   try {
-    // ตรวจสอบว่ามีประเภทโต๊ะที่ระบุหรือไม่
-    const typeRecord = await db.type_Table.findFirst({
-      where: { type_name: type_name }
+    const typeRecord = await db.type_Table.findUnique({
+      where: { type_id: Number(type_id) }, 
     });
 
     if (!typeRecord) {
-      return res.status(400).json({ message: "Type not found" });
+      return res.status(400).json({ message: "Table type not found" });
     }
 
-    const type_id = typeRecord.type_id;
+    const existingTable = await db.table.findUnique({
+      where: { table_id: Number(table_id) }, 
+    });
 
-    const validStatuses = ["FREE", "BUSY"];
-    if (!validStatuses.includes(table_status)) {
-      return res.status(400).json({ message: "Invalid table status" });
+    if (!existingTable) {
+      return res.status(404).json({ message: "Table not found" });
     }
 
-    const rs = await db.table.update({
+    const updatedTable = await db.table.update({
+      where: { table_id: Number(table_id) }, 
       data: {
         table_img,
         table_name,
         table_status,
-        table_price: parseInt(table_price, 10), 
+        table_price: price,
+        typeId: Number(type_id), 
       },
-      where: { table_id: Number(table_id) },
     });
 
-    res.json({ message: "UPDATE", result: rs });
+    res.json({ message: "Table updated successfully", result: updatedTable });
   } catch (err) {
     console.error("Error updating table:", err);
+    console.error("Stack trace:", err.stack);
+
     res.status(500).json({ message: "Internal server error", error: err.message });
   }
 };
-
-
 
 exports.updateStatusTable = async (req, res, next) => {
   console.log(req.body)
@@ -314,15 +325,3 @@ exports.updateStatusTable = async (req, res, next) => {
     console.log(err);
   }
 };
-
-
-// exports.deleteBooking = async (req, res, next) => {
-//   const { booking_id } = req.params;
-//   try {
-//     const rs = await db.booking.delete({ where: { booking_id: +booking_id } });
-//     res.json({ msg: "Delete Ok", result: rs });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
