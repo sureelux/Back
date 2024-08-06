@@ -47,6 +47,9 @@ web.use("/getType*", async (req, res, next) => {
   }
 });
 
+web.get('/admin/availableDates', (req, res) => {
+});
+
 web.use("/admin",authenticate ,adminRoute);
 web.use("/user" ,userRoute);
 
