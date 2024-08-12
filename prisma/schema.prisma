@@ -61,6 +61,7 @@ model Table {
   table_img    String
   table_name   String      @db.VarChar(50)
   table_status TableStatus @default(FREE)
+  table_seat   Int      
   table_price  Int
   type_table   Type_Table  @relation(fields: [typeId], references: [type_id], onDelete: Cascade, onUpdate: Cascade)
   typeId       Int         @map("type_id")

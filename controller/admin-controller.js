@@ -105,7 +105,7 @@ exports.deleteType = async (req, res, next) => {
 
 exports.createTables = async (req, res, next) => {
   try {
-    const { table_img, table_name, table_status, table_price, type_name } = req.body;
+    const { table_img, table_name, table_status, table_seat ,table_price, type_name } = req.body;
     if (
       !table_name || typeof table_name !== 'string' ||
       !table_status || typeof table_status !== 'string' ||
@@ -116,6 +116,7 @@ exports.createTables = async (req, res, next) => {
 
     const sanitizedTableName = table_name.trim();
     const sanitizedTableStatus = table_status.trim();
+    const sanitizedTableSeat = Number(table_seat);
     const sanitizedTablePrice = Number(table_price);
     const sanitizedTypeName = Number(type_name);
 
@@ -132,6 +133,7 @@ exports.createTables = async (req, res, next) => {
         table_img,
         table_name: sanitizedTableName,
         table_status: sanitizedTableStatus,
+        table_seat: sanitizedTableSeat,
         table_price: sanitizedTablePrice,
         typeId: sanitizedTypeName,
       },
@@ -255,9 +257,9 @@ exports.updateType = async (req, res, next) => {
 
 exports.updateTable = async (req, res) => {
   const { table_id } = req.params;
-  const { table_img, table_name, table_status, table_price, type_id } = req.body;
+  const { table_img, table_name, table_status, table_seat, table_price, type_id } = req.body;
 
-  if (!table_img || !table_name || !table_status || table_price === undefined || !type_id) {
+  if (!table_img || !table_name || !table_status || table_seat === undefined || table_price === undefined || !type_id) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -294,6 +296,7 @@ exports.updateTable = async (req, res) => {
         table_img,
         table_name,
         table_status,
+        table_seat,
         table_price: price,
         typeId: Number(type_id), 
       },
