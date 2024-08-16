@@ -12,20 +12,22 @@ router.get('/bookings' , authenticate, adminController.getBookings)
 router.delete('/deleteUser/:user_id' , authenticate, adminController.deleteUser)
 router.delete('/deleteTable/:table_id' , authenticate, adminController.deleteTable)
 router.delete('/deleteType/:type_id' , authenticate, adminController.deleteType)
-// router.delete('/deleteBooking/:booking_id' , adminController.deleteBooking)
+
 
 //create
 router.post('/tables', authenticate, adminController.createTables)
 router.post('/types' , authenticate, adminController.createType)
-
 router.get('/types/check/:type_name',authenticate, adminController.checkTypeExists);
 router.get('/tables/check', authenticate, adminController.checkTableNameUnique);
-//updete
 
+//updete
 router.patch('/updateType/:type_id' , authenticate, adminController.updateType)
 router.patch('/updateTable/:table_id' , authenticate, adminController.updateTable)
 router.patch('/updateStatus/:table_id' , authenticate, adminController.updateStatusTable)
 router.patch('/updateStatusBooking/:booking_id', authenticate, adminController.updateStatusBooking)
 
 
+
+
+// router.delete('/deleteBooking/:booking_id' , adminController.deleteBooking)
 module.exports = router 

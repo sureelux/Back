@@ -34,6 +34,7 @@ enum BookingStatus {
   WAIT
   APPROVE 
   CANCEL
+  SUCCEED
 }
 
 model Booking {
