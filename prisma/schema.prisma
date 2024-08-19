@@ -32,25 +32,25 @@ model User {
 
 enum BookingStatus {
   WAIT
-  APPROVE 
+  APPROVE
   CANCEL
   SUCCEED
 }
 
 model Booking {
-  booking_id       Int       @id @default(autoincrement())
+  booking_id       Int           @id @default(autoincrement())
   booking_datatime DateTime
-  status_booking  BookingStatus @default(WAIT)
-  table            Table     @relation(fields: [tableId], references: [table_id], onDelete: Cascade, onUpdate: Cascade)
-  tableId          Int       @map("table_id")
-  user             User      @relation(fields: [userId], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
-  userId           Int       @map("user_id")
-  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt        DateTime  @updatedAt @map("updated_at") @db.Timestamp(0)
+  status_booking   BookingStatus @default(WAIT)
+  note_booking     String        @db.VarChar(100)
+  table            Table         @relation(fields: [tableId], references: [table_id], onDelete: Cascade, onUpdate: Cascade)
+  tableId          Int           @map("table_id")
+  user             User          @relation(fields: [userId], references: [user_id], onDelete: Cascade, onUpdate: Cascade)
+  userId           Int           @map("user_id")
+  createdAt        DateTime      @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt        DateTime      @updatedAt @map("updated_at") @db.Timestamp(0)
 
   @@map("bookings")
 }
-
 
 enum TableStatus {
   FREE
@@ -62,7 +62,7 @@ model Table {
   table_img    String
   table_name   String      @db.VarChar(50)
   table_status TableStatus @default(FREE)
-  table_seat   Int      
+  table_seat   Int
   table_price  Int
   type_table   Type_Table  @relation(fields: [typeId], references: [type_id], onDelete: Cascade, onUpdate: Cascade)
   typeId       Int         @map("type_id")

@@ -1,6 +1,5 @@
 const db = require("../models/db");
 
-
 exports.getUsers = async (req, res, next) => {
   try {
     const users = await db.user.findMany();
@@ -55,24 +54,6 @@ exports.getBookings = async (req, res, next) => {
   }
 };
 
-exports.updateStatusBooking = async (req, res, next) => {
-  console.log(req.body)
-  const { booking_id } = req.params;
-  const { status_booking } = req.body;
-  try {
-    const rs = await db.booking.update({
-      data: {
-        status_booking,
-      },
-      where: { booking_id: Number(booking_id) },
-    });
-    res.json({ message: "UPDETE", result: rs });
-  } catch (err) {
-    next(err);
-    console.log(err);
-  }
-};
-
 exports.deleteUser = async (req, res, next) => {
   const { user_id } = req.params;
   try {
@@ -105,11 +86,21 @@ exports.deleteType = async (req, res, next) => {
 
 exports.createTables = async (req, res, next) => {
   try {
-    const { table_img, table_name, table_status, table_seat ,table_price, type_name } = req.body;
+    const {
+      table_img,
+      table_name,
+      table_status,
+      table_seat,
+      table_price,
+      type_name,
+    } = req.body;
     if (
-      !table_name || typeof table_name !== 'string' ||
-      !table_status || typeof table_status !== 'string' ||
-      isNaN(Number(table_price)) || isNaN(Number(type_name))
+      !table_name ||
+      typeof table_name !== "string" ||
+      !table_status ||
+      typeof table_status !== "string" ||
+      isNaN(Number(table_price)) ||
+      isNaN(Number(type_name))
     ) {
       return res.status(400).json({ msg: "Invalid input data" });
     }
@@ -139,10 +130,14 @@ exports.createTables = async (req, res, next) => {
       },
     });
 
-    res.status(201).json({ msg: "Table created successfully", table: newTable });
+    res
+      .status(201)
+      .json({ msg: "Table created successfully", table: newTable });
   } catch (error) {
     console.error("Error creating table:", error.message);
-    res.status(500).json({ msg: "Internal Server Error", error: error.message });
+    res
+      .status(500)
+      .json({ msg: "Internal Server Error", error: error.message });
     next(error);
   }
 };
@@ -151,43 +146,45 @@ exports.checkTableNameUnique = async (req, res) => {
   try {
     const { name } = req.query;
 
-
-    if (!name || typeof name !== 'string') {
+    if (!name || typeof name !== "string") {
       console.log("Invalid input data:", { name });
       return res.status(400).json({ msg: "Invalid input data" });
     }
 
     const sanitizedName = name.trim();
-    console.log("Sanitized table name:", sanitizedName); 
+    console.log("Sanitized table name:", sanitizedName);
 
     const existingTable = await db.table.findFirst({
       where: { table_name: sanitizedName },
     });
 
-    console.log("Existing table record:", existingTable); 
+    console.log("Existing table record:", existingTable);
 
     res.status(200).json({ isUnique: !existingTable });
   } catch (error) {
-    console.error("Error checking table name uniqueness:", error); 
-    res.status(500).json({ msg: "Internal Server Error", error: error.message });
+    console.error("Error checking table name uniqueness:", error);
+    res
+      .status(500)
+      .json({ msg: "Internal Server Error", error: error.message });
   }
 };
-
 
 exports.createType = async (req, res, next) => {
   try {
     const { type_name } = req.body;
 
-    if (!type_name || typeof type_name !== 'string') {
-      return res.status(400).json({ msg: "Type name is required and must be a string" });
+    if (!type_name || typeof type_name !== "string") {
+      return res
+        .status(400)
+        .json({ msg: "Type name is required and must be a string" });
     }
 
     const existingType = await db.type_Table.findFirst({
       where: {
-        type_name: type_name
-      }
+        type_name: type_name,
+      },
     });
-    
+
     if (existingType) {
       return res.status(400).json({ msg: "Type name already exists" });
     }
@@ -203,24 +200,27 @@ exports.createType = async (req, res, next) => {
     if (error.name === "ValidationError") {
       res.status(400).json({ msg: error.message });
     } else {
-      res.status(500).json({ msg: "Internal Server Error", error: error.message });
+      res
+        .status(500)
+        .json({ msg: "Internal Server Error", error: error.message });
     }
 
     next(error);
   }
 };
 
-
 exports.checkTypeExists = async (req, res, next) => {
   try {
     const { type_name } = req.params;
 
-    if (!type_name || typeof type_name !== 'string') {
-      return res.status(400).json({ msg: "Type name is required and must be a string" });
+    if (!type_name || typeof type_name !== "string") {
+      return res
+        .status(400)
+        .json({ msg: "Type name is required and must be a string" });
     }
 
     const existingType = await db.type_Table.findFirst({
-      where: { type_name }
+      where: { type_name },
     });
 
     res.status(200).json({ exists: !!existingType });
@@ -230,7 +230,9 @@ exports.checkTypeExists = async (req, res, next) => {
     if (error.name === "ValidationError") {
       res.status(400).json({ msg: error.message });
     } else {
-      res.status(500).json({ msg: "Internal Server Error", error: error.message });
+      res
+        .status(500)
+        .json({ msg: "Internal Server Error", error: error.message });
     }
 
     next(error);
@@ -257,14 +259,28 @@ exports.updateType = async (req, res, next) => {
 
 exports.updateTable = async (req, res) => {
   const { table_id } = req.params;
-  const { table_img, table_name, table_status, table_seat, table_price, type_id } = req.body;
+  const {
+    table_img,
+    table_name,
+    table_status,
+    table_seat,
+    table_price,
+    type_id,
+  } = req.body;
 
-  if (!table_img || !table_name || !table_status || table_seat === undefined || table_price === undefined || !type_id) {
+  if (
+    !table_img ||
+    !table_name ||
+    !table_status ||
+    table_seat === undefined ||
+    table_price === undefined ||
+    !type_id
+  ) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
   const price = parseFloat(table_price);
-  if (isNaN(price) || price < 0) { 
+  if (isNaN(price) || price < 0) {
     return res.status(400).json({ message: "Invalid table price" });
   }
 
@@ -275,7 +291,7 @@ exports.updateTable = async (req, res) => {
 
   try {
     const typeRecord = await db.type_Table.findUnique({
-      where: { type_id: Number(type_id) }, 
+      where: { type_id: Number(type_id) },
     });
 
     if (!typeRecord) {
@@ -283,7 +299,7 @@ exports.updateTable = async (req, res) => {
     }
 
     const existingTable = await db.table.findUnique({
-      where: { table_id: Number(table_id) }, 
+      where: { table_id: Number(table_id) },
     });
 
     if (!existingTable) {
@@ -291,14 +307,14 @@ exports.updateTable = async (req, res) => {
     }
 
     const updatedTable = await db.table.update({
-      where: { table_id: Number(table_id) }, 
+      where: { table_id: Number(table_id) },
       data: {
         table_img,
         table_name,
         table_status,
         table_seat,
         table_price: price,
-        typeId: Number(type_id), 
+        typeId: Number(type_id),
       },
     });
 
@@ -307,24 +323,85 @@ exports.updateTable = async (req, res) => {
     console.error("Error updating table:", err);
     console.error("Stack trace:", err.stack);
 
-    res.status(500).json({ message: "Internal server error", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: err.message });
   }
 };
 
 exports.updateStatusTable = async (req, res, next) => {
-  console.log(req.body)
   const { table_id } = req.params;
   const { table_status } = req.body;
+
+  if (isNaN(table_id) || !table_status) {
+    return res.status(400).json({ message: "Invalid input" });
+  }
+
   try {
-    const rs = await db.table.update({
+    const result = await db.table.update({
       data: {
         table_status,
       },
       where: { table_id: Number(table_id) },
     });
-    res.json({ message: "UPDETE", result: rs });
+
+    res.json({ message: "Update successful", result });
   } catch (err) {
+    console.error("Error updating table status:", err);
     next(err);
-    console.log(err);
   }
 };
+
+exports.updateStatusBooking = async (req, res, next) => {
+  const { booking_id } = req.params;
+  const { status_booking, note_booking } = req.body;
+
+  if (isNaN(booking_id) || !status_booking) {
+    return res.status(400).json({ message: "Invalid input" });
+  }
+
+  try {
+    const existingBooking = await db.booking.findUnique({
+      where: { booking_id: Number(booking_id) },
+      include: { table: true },
+    });
+
+    if (!existingBooking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    const { tableId } = existingBooking;
+
+    if (status_booking === "APPROVE") {
+      
+      const conflictingBooking = await db.booking.findFirst({
+        where: {
+          tableId: tableId,
+          status_booking: "APPROVE",
+          booking_id: { not: Number(booking_id) },
+        },
+      });
+
+      if (conflictingBooking) {
+        return res.status(400).json({
+          message: "Cannot approve this booking because another booking for the same table is already approved.",
+        });
+      }
+    }
+
+    const updatedBooking = await db.booking.update({
+      where: { booking_id: Number(booking_id) },
+      data: {
+        status_booking,
+        note_booking,
+      },
+    });
+
+    res.json({ message: "Update successful", result: updatedBooking });
+  } catch (err) {
+    console.error("Error updating booking status:", err);
+    next(err);
+  }
+};
+
+

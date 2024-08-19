@@ -28,6 +28,5 @@ router.patch('/updateStatusBooking/:booking_id', authenticate, adminController.u
 
 
 
-
 // router.delete('/deleteBooking/:booking_id' , adminController.deleteBooking)
 module.exports = router 

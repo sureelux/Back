@@ -20,7 +20,7 @@ exports.getBookingUser = async (req, res, next) => {
   };
   
   exports.createBookings = async (req, res, next) => {
-    const { booking_datatime, table_id, user_id } = req.body;
+    const { booking_datatime, table_id, user_id, note_booking} = req.body;
     try {
       const dateTime = new Date(booking_datatime);
       const booking = await db.booking.create({
@@ -36,6 +36,7 @@ exports.getBookingUser = async (req, res, next) => {
               user_id,
             },
           },
+          note_booking: note_booking || "",
         },
       });
       res.json({ booking });
