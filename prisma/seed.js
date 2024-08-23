@@ -3,10 +3,12 @@ const {PrismaClient} = require('@prisma/client')
 const { table } = require('../models/db')
 const prisma = new PrismaClient()
 
-const password = bcrypt.hashSync('123456789')
+const password = bcrypt.hashSync('123456')
 const userData = [
     {username : 'namtip', password: password, firstname: 'sureelux', lastname : 'pangkhamhak',address : '999 Nakonphanom',phone : '0999999999', email : 'sureelux2545@gmail.com'},
-    {username : 'tip', password: password, firstname: 'namtip', lastname : 'pangkhamhak',address : '888 Nakonphanom',phone : '098888888', email : 'sureelux2545@gmail.com'}
+    {username : 'tip', password: password, firstname: 'namtip', lastname : 'pangkhamhak',address : '888 Nakonphanom',phone : '098888888', email : 'sureelux2545@gmail.com'},
+    {username : 'user2', password: password, firstname: 'namtip', lastname : 'pangkhamhak',address : '888 Nakonphanom',phone : '098888888', email : 'sureelux2545@gmail.com'},
+    {username : 'user', password: password, firstname: 'namtip', lastname : 'pangkhamhak',address : '888 Nakonphanom',phone : '098888888', email : 'sureelux2545@gmail.com'}
 ]
 
 const tableData = [
