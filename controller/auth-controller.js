@@ -10,7 +10,7 @@ module.exports.register = async (req, res, next) => {
       return next(new Error("Fullfill all inputs"));
     }
     if (confirmPassword !== password) {
-      throw new Error("confirm password not match");
+      throw new Error("Fullfill all input");
     }
     const hashedPassword = await bcrypt.hash(password, 8);
     console.log(hashedPassword);

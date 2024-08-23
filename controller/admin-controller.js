@@ -373,7 +373,6 @@ exports.updateStatusBooking = async (req, res, next) => {
     const { tableId } = existingBooking;
 
     if (status_booking === "APPROVE") {
-      
       const conflictingBooking = await db.booking.findFirst({
         where: {
           tableId: tableId,
@@ -393,7 +392,7 @@ exports.updateStatusBooking = async (req, res, next) => {
       where: { booking_id: Number(booking_id) },
       data: {
         status_booking,
-        note_booking,
+        note_booking: note_booking || '',
       },
     });
 
@@ -403,5 +402,6 @@ exports.updateStatusBooking = async (req, res, next) => {
     next(err);
   }
 };
+
 
 

@@ -23,6 +23,11 @@ exports.getBookingUser = async (req, res, next) => {
     const { booking_datatime, table_id, user_id, note_booking} = req.body;
     try {
       const dateTime = new Date(booking_datatime);
+
+      if (isNaN(dateTime.getTime())) { 
+        return res.status(400).json({ error: 'Invalid date format.' });
+      }
+      
       const booking = await db.booking.create({
         data: {
           booking_datatime: dateTime,
@@ -43,6 +48,7 @@ exports.getBookingUser = async (req, res, next) => {
     } catch (err) {
       next(err);
       console.log(err);
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
   };
   
