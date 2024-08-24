@@ -370,9 +370,10 @@ exports.updateStatusBooking = async (req, res, next) => {
       return res.status(404).json({ message: "Booking not found" });
     }
 
-    const { tableId } = existingBooking;
+    const { tableId, userId } = existingBooking;
 
     if (status_booking === "APPROVE") {
+      // ตรวจสอบการจองซ้อนในโต๊ะเดียวกัน
       const conflictingBooking = await db.booking.findFirst({
         where: {
           tableId: tableId,
@@ -384,6 +385,29 @@ exports.updateStatusBooking = async (req, res, next) => {
       if (conflictingBooking) {
         return res.status(400).json({
           message: "Cannot approve this booking because another booking for the same table is already approved.",
+        });
+      }
+
+      // อัปเดตสถานะโต๊ะเป็น BUSY
+      await db.table.update({
+        where: { id: tableId },
+        data: { table_status: "BUSY" },
+      });
+    } else if (status_booking === "CANCEL") {
+      // ตรวจสอบการจองอื่นๆ ที่มีสถานะ APPROVE
+      const otherApprovedBookings = await db.booking.findMany({
+        where: {
+          tableId: tableId,
+          status_booking: "APPROVE",
+          booking_id: { not: Number(booking_id) },
+        },
+      });
+
+      if (otherApprovedBookings.length === 0) {
+        // ไม่มีการจองที่ได้รับการอนุมัติอยู่ในโต๊ะเดียวกัน จึงอัปเดตสถานะโต๊ะเป็น FREE
+        await db.table.update({
+          where: { id: tableId },
+          data: { table_status: "FREE" },
         });
       }
     }
