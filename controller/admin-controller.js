@@ -1,5 +1,5 @@
 const db = require("../models/db");
-
+const cloudUpload = require("../ีutils/cloudpload");
 exports.getUsers = async (req, res, next) => {
   try {
     const users = await db.user.findMany();
@@ -46,9 +46,12 @@ exports.getBookings = async (req, res, next) => {
         },
         user: true,
       },
+      orderBy: {
+        booking_id: "desc"
+      }
     });
     res.json({ bookings });
-    next();
+    next()
   } catch (err) {
     next(err);
   }
@@ -87,18 +90,19 @@ exports.deleteType = async (req, res, next) => {
 exports.createTables = async (req, res, next) => {
   try {
     const {
-      table_img,
       table_name,
       table_status,
       table_seat,
       table_price,
       type_name,
     } = req.body;
+
     if (
       !table_name ||
       typeof table_name !== "string" ||
       !table_status ||
       typeof table_status !== "string" ||
+      isNaN(Number(table_seat)) ||
       isNaN(Number(table_price)) ||
       isNaN(Number(type_name))
     ) {
@@ -111,17 +115,26 @@ exports.createTables = async (req, res, next) => {
     const sanitizedTablePrice = Number(table_price);
     const sanitizedTypeName = Number(type_name);
 
+
     const existingTable = await db.table.findFirst({
       where: { table_name: sanitizedTableName },
     });
 
     if (existingTable) {
-      return res.status(400).json({ msg: "Table name already exists" });
+      return res.status(400).json({ msg: "โต๊ะถูกเพิ่มในระบบแล้ว" });
+    }
+
+
+    const imageUrls = [];
+    if (req.files && req.files.length > 0) {
+      const imagePromise = req.files.map((file) => cloudUpload(file.path));
+      const imageUrlArray = await Promise.all(imagePromise);
+      imageUrls.push(...imageUrlArray);
     }
 
     const newTable = await db.table.create({
       data: {
-        table_img,
+        table_img: imageUrls[0] || null,
         table_name: sanitizedTableName,
         table_status: sanitizedTableStatus,
         table_seat: sanitizedTableSeat,
@@ -130,17 +143,20 @@ exports.createTables = async (req, res, next) => {
       },
     });
 
-    res
-      .status(201)
-      .json({ msg: "Table created successfully", table: newTable });
+    res.status(201).json({
+      msg: "Table created successfully",
+      table: newTable,
+    });
   } catch (error) {
     console.error("Error creating table:", error.message);
-    res
-      .status(500)
-      .json({ msg: "Internal Server Error", error: error.message });
+    res.status(500).json({
+      msg: "Internal Server Error",
+      error: error.message,
+    });
     next(error);
   }
 };
+
 
 exports.checkTableNameUnique = async (req, res) => {
   try {
@@ -163,11 +179,10 @@ exports.checkTableNameUnique = async (req, res) => {
     res.status(200).json({ isUnique: !existingTable });
   } catch (error) {
     console.error("Error checking table name uniqueness:", error);
-    res
-      .status(500)
-      .json({ msg: "Internal Server Error", error: error.message });
+    res.status(500).json({ msg: "Internal Server Error", error: error.message });
   }
 };
+
 
 exports.createType = async (req, res, next) => {
   try {
@@ -243,14 +258,31 @@ exports.updateType = async (req, res, next) => {
   const { type_id } = req.params;
   const { type_name } = req.body;
   console.log(req.params);
+
   try {
-    const rs = await db.type_Table.update({
+    const existingType = await db.type_Table.findFirst({
+      where: {
+        type_name,
+        NOT: {
+          type_id: Number(type_id),
+        },
+      },
+    });
+
+    if (existingType) {
+      return res.status(400).json({ message: "Type name already exists." });
+    }
+
+    const updatedType = await db.type_Table.update({
       data: {
         type_name,
       },
-      where: { type_id: Number(type_id) },
+      where: {
+        type_id: Number(type_id),
+      },
     });
-    res.json({ message: "UPDETE", result: rs });
+
+    res.json({ message: "UPDATE SUCCESSFUL", result: updatedType });
   } catch (err) {
     next(err);
     console.log(err);
@@ -260,21 +292,18 @@ exports.updateType = async (req, res, next) => {
 exports.updateTable = async (req, res) => {
   const { table_id } = req.params;
   const {
-    table_img,
     table_name,
     table_status,
     table_seat,
     table_price,
-    type_id,
+    typeId,
   } = req.body;
 
+  console.log(req.body);
+
   if (
-    !table_img ||
     !table_name ||
-    !table_status ||
-    table_seat === undefined ||
-    table_price === undefined ||
-    !type_id
+    !table_status
   ) {
     return res.status(400).json({ message: "All fields are required" });
   }
@@ -291,7 +320,7 @@ exports.updateTable = async (req, res) => {
 
   try {
     const typeRecord = await db.type_Table.findUnique({
-      where: { type_id: Number(type_id) },
+      where: { type_id: Number(typeId) },
     });
 
     if (!typeRecord) {
@@ -306,20 +335,40 @@ exports.updateTable = async (req, res) => {
       return res.status(404).json({ message: "Table not found" });
     }
 
+    const tableWithSameName = await db.table.findFirst({
+      where: {
+        table_name,
+        NOT: {
+          table_id: Number(table_id),
+        },
+      },
+    });
+
+    if (tableWithSameName) {
+      return res.status(400).json({ message: "โต๊ะถูกเพิ่มในระบบแล้ว" });
+    }
+
+    const imagePromise = req.files.map((file) => {
+      return cloudUpload(file.path);
+    });
+
+    const imageUrlArray = await Promise.all(imagePromise);
+
     const updatedTable = await db.table.update({
       where: { table_id: Number(table_id) },
       data: {
-        table_img,
+        table_img: imageUrlArray[0],
         table_name,
         table_status,
-        table_seat,
+        table_seat: Number(table_seat),
         table_price: price,
-        typeId: Number(type_id),
+        typeId: Number(typeId),
       },
     });
 
     res.json({ message: "Table updated successfully", result: updatedTable });
   } catch (err) {
+    console.log(err);
     console.error("Error updating table:", err);
     console.error("Stack trace:", err.stack);
 
@@ -328,6 +377,26 @@ exports.updateTable = async (req, res) => {
       .json({ message: "Internal server error", error: err.message });
   }
 };
+
+exports.checkTableNameUnique = async (req, res) => {
+  const { table_name } = req.query; 
+
+  if (!table_name) {
+    return res.status(400).json({ message: "Table name is required" });
+  }
+
+  try {
+    const existingTable = await db.table.findFirst({
+      where: { table_name }
+    });
+
+    res.json({ exists: !!existingTable });
+  } catch (err) {
+    console.error("Error checking table name:", err);
+    res.status(500).json({ message: "Internal server error", error: err.message });
+  }
+};
+
 
 exports.updateStatusTable = async (req, res, next) => {
   const { table_id } = req.params;
@@ -402,6 +471,9 @@ exports.updateStatusBooking = async (req, res, next) => {
     next(err);
   }
 };
+
+
+
 
 
 
